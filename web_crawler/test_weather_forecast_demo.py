@@ -14,7 +14,7 @@ class TestCraw(object):
             t1 = time.time()
             result = fn(*args, **kwargs)
             t2 = time.time()
-            print(f"@timefn: {fn.__name__} took {t2 - t1: .5f} s")
+            print(f"方法{fn.__name__}耗时{t2 - t1:.2f}秒")
             return result
 
         return measure_time
