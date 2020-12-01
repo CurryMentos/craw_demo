@@ -47,5 +47,5 @@ class TestCraw(object):
 
             print('{} {}'.format(movie_name, url_to_fetch))
 
-    if __name__ == '__main__':
-        pytest.main(['-s', '-v', 'test_movie_demo.py'])
+if __name__ == '__main__':
+    pytest.main(['-s', '-v', 'test_movie_demo.py'])
