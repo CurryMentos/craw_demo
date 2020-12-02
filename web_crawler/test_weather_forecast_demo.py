@@ -21,7 +21,6 @@ class TestCraw(object):
 
     # 中国天气预报
     def weather_forecast(object, province):
-        # url = "http://www.weather.com.cn/textFC/beijing.shtml#"
         url = "http://www.weather.com.cn/textFC/{}.shtml#".format(province)
         headers = {
             'Connection': 'close',
