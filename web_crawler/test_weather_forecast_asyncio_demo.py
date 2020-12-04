@@ -1,12 +1,12 @@
 import pytest
 import time
-import requests
-import concurrent.futures
+import asyncio
+import aiohttp
 from functools import wraps
 from bs4 import BeautifulSoup
 
 
-# 多线程
+# 协程
 # 中国天气预报
 class TestCraw(object):
     def timefn(fn):
@@ -22,7 +22,7 @@ class TestCraw(object):
 
         return measure_time
 
-    def craw_one(self, url):
+    async def craw_one(self, url):
         headers = {
             'Connection': 'close',
             'Accept''': 'application/json, text/javascript, */*; q=0.01',
@@ -35,28 +35,29 @@ class TestCraw(object):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36',
             # 'Upgrade-Insecure-Requests': '1',
         }
-        response = requests.get(url, headers=headers)
-        bs = BeautifulSoup(response.content, 'lxml')
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                bs = BeautifulSoup(response.content, 'lxml')
 
-        print('中国天气预报：')
-        provinces = bs.find('div', class_="conMidtab")
-        for all_provinces in provinces.find_all('div', class_="conMidtab3"):
-            province_name = all_provinces.find('td', width="74").text
-            print('{}(市)天气预报：'.format(province_name))
-            for all_cities in all_provinces.find_all('tr'):
-                city_name = all_cities.find('td', width="83").text
-                city_day_weather = all_cities.find('td', width="89").text
-                city_night_weather = all_cities.find('td', width="98").text
-                city_highest_temperature = all_cities.find('td', width="92").text
-                city_lowest_temperature = all_cities.find('td', width="86").text
-                print('{}(区/县)：'.format(city_name))
-                print('白天{} 夜晚{}'.format(city_day_weather, city_night_weather))
-                print('最高温度：{}℃ 最低温度：{}℃'.format(city_highest_temperature, city_lowest_temperature))
-                print('===========================================')
+                print('中国天气预报：')
+                provinces = bs.find('div', class_="conMidtab")
+                for all_provinces in provinces.find_all('div', class_="conMidtab3"):
+                    province_name = all_provinces.find('td', width="74").text
+                    print('{}(市)天气预报：'.format(province_name))
+                    for all_cities in all_provinces.find_all('tr'):
+                        city_name = all_cities.find('td', width="83").text
+                        city_day_weather = all_cities.find('td', width="89").text
+                        city_night_weather = all_cities.find('td', width="98").text
+                        city_highest_temperature = all_cities.find('td', width="92").text
+                        city_lowest_temperature = all_cities.find('td', width="86").text
+                        print('{}(区/县)：'.format(city_name))
+                        print('白天{} 夜晚{}'.format(city_day_weather, city_night_weather))
+                        print('最高温度：{}℃ 最低温度：{}℃'.format(city_highest_temperature, city_lowest_temperature))
+                        print('===========================================')
 
-    def craw_all(self, urls):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            executor.map(self.craw_one, urls)
+    async def craw_all(self, urls):
+        tasks = [asyncio.create_task(self.craw_one(url)) for url in urls]
+        await asyncio.gather(*tasks)
 
     @timefn
     def test_craw(self):
@@ -65,8 +66,8 @@ class TestCraw(object):
                     'henan', 'guangxi', 'guangdong', 'hainan', 'shanxi', 'gansu', 'xinjiang', 'qinghai', 'ningxia',
                     'sichuan', 'chongqing', 'guizhou', 'yunnan', 'xizang', 'hongkong', 'macao', 'taiwan']
         urls = ["http://www.weather.com.cn/textFC/{}.shtml#".format(i) for i in province]
-        self.craw_all(urls)
+        asyncio.run(self.craw_all(urls))
 
 
 if __name__ == '__main__':
-    pytest.main(['-s', '-v', 'test_weather_forecast_demo.py'])
+    pytest.main(['-s', '-v', 'test_weather_forecast_asyncio_demo.py'])
