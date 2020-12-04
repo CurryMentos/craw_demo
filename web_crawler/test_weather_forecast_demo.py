@@ -1,10 +1,12 @@
 import pytest
 import time
 import requests
+import concurrent.futures
 from functools import wraps
 from bs4 import BeautifulSoup
 
 
+# 中国天气预报
 class TestCraw(object):
     def timefn(fn):
         """计算函数运行时间的装饰器"""
@@ -19,9 +21,7 @@ class TestCraw(object):
 
         return measure_time
 
-    # 中国天气预报
-    def weather_forecast(object, province):
-        url = "http://www.weather.com.cn/textFC/{}.shtml#".format(province)
+    def craw_one(self, url):
         headers = {
             'Connection': 'close',
             'Accept''': 'application/json, text/javascript, */*; q=0.01',
@@ -53,14 +53,18 @@ class TestCraw(object):
                 print('最高温度：{}℃ 最低温度：{}℃'.format(city_highest_temperature, city_lowest_temperature))
                 print('===========================================')
 
+    def craw_all(self, urls):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            executor.map(self.craw_one, urls)
+
     @timefn
     def test_craw(self):
         province = ['beijing', 'tianjin', 'hebei', 'shanxi', 'neimenggu', 'heilongjiang', 'jilin', 'liaoning',
                     'shanghai', 'anhui', 'jiangsu', 'shandong', 'zhejiang', 'fujian', 'jiangxi', 'hubei', 'hunan',
                     'henan', 'guangxi', 'guangdong', 'hainan', 'shanxi', 'gansu', 'xinjiang', 'qinghai', 'ningxia',
                     'sichuan', 'chongqing', 'guizhou', 'yunnan', 'xizang', 'hongkong', 'macao', 'taiwan']
-        for i in province:
-            self.weather_forecast(i)
+        urls = ["http://www.weather.com.cn/textFC/{}.shtml#".format(i) for i in province]
+        self.craw_all(urls)
 
 
 if __name__ == '__main__':
