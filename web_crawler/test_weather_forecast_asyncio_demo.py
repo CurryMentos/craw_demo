@@ -6,7 +6,7 @@ from functools import wraps
 from bs4 import BeautifulSoup
 
 
-# 协程
+# 异步
 # 中国天气预报
 class TestCraw(object):
     def timefn(fn):
