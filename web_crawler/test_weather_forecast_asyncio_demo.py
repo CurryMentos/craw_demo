@@ -23,20 +23,8 @@ class TestCraw(object):
         return measure_time
 
     async def craw_one(self, url):
-        headers = {
-            'Connection': 'close',
-            'Accept''': 'application/json, text/javascript, */*; q=0.01',
-            # 'Accept''': '*/*',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6',
-            # 'Cookie': 'DFF0015216D06A1B48DC7BE3AD3BA45E8|5af2dd013253498be4567c7ab005658a',
-            # 'Origin': 'https://www.bilibili.com/',
-            # 'Host': 'www.weather.com.cn',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36',
-            # 'Upgrade-Insecure-Requests': '1',
-        }
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
+            async with session.get(url) as response:
                 bs = BeautifulSoup(response.content, 'lxml')
 
                 print('中国天气预报：')
@@ -57,6 +45,7 @@ class TestCraw(object):
 
     async def craw_all(self, urls):
         tasks = [asyncio.create_task(self.craw_one(url)) for url in urls]
+        # tasks = [asyncio.ensure_future(self.craw_one(url)) for url in urls]
         await asyncio.gather(*tasks)
 
     @timefn
@@ -67,6 +56,11 @@ class TestCraw(object):
                     'sichuan', 'chongqing', 'guizhou', 'yunnan', 'xizang', 'hongkong', 'macao', 'taiwan']
         urls = ["http://www.weather.com.cn/textFC/{}.shtml#".format(i) for i in province]
         asyncio.run(self.craw_all(urls))
+        # loop = asyncio.get_event_loop()
+        # try:
+        #     loop.run_until_complete(self.craw_all(urls))
+        # finally:
+        #     loop.close()
 
 
 if __name__ == '__main__':
