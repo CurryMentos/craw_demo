@@ -43,7 +43,7 @@ class TestCraw(object):
                 print('===========================================')
 
     def craw_all(self, urls):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             executor.map(self.craw_one, urls)
 
     @timefn
