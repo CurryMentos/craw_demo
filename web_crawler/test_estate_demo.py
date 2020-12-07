@@ -21,10 +21,12 @@ class TestCraw(object):
 
     @timefn
     def test_craw(self):
+        district = "pudong"
         property_type = "nht1"  # 住宅 nht1, 别墅 nht2, 商业 nht3, 写字楼 nht4
         sale_type = "nhs1"  # 在售 nhs1, 未开盘 nhs2, 售罄 nhs3
         decoration_type = "nhd2"  # 带装修 nhd1, 毛坯 nhd2
-        url = "https://sh.fang.lianjia.com/loupan/{}{}{}/".format(property_type, sale_type, decoration_type)
+        url = "https://sh.fang.lianjia.com/loupan/{}/{}{}{}/".format(
+            district, property_type, sale_type, decoration_type)
         response = requests.get(url)
         bs = BeautifulSoup(response.content, 'lxml')
 
