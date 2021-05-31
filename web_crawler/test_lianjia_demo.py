@@ -65,4 +65,4 @@ class TestCraw(object):
 
 
 if __name__ == '__main__':
-    pytest.main(['-s', '-v', 'test_estate_demo.py'])
+    pytest.main(['-s', '-v', 'test_lianjia_demo.py'])
